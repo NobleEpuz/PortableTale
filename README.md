@@ -4,3 +4,9 @@ This recreation based on LuaPlayerPlus, but maybe can be rewritten on LuaPlayerY
 
 ## How to build?
 The game requires no build. Just download Source Code, and run EBOOT.PBP!
+
+## Finished list
+- Intro - 95% (No camera lift at the end)
+- Splash - 50% (No name input)
+- Overworld - 25%
+- Battle Engine - 0%
