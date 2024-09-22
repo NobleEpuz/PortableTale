@@ -18,7 +18,7 @@ end
 
 local hitbox = Image.load("Assets/Sprites/Character/hitbox.png")
 local hitboxBlock = Image.load("Assets/Sprites/Overworld/HitboxBlock.png")
-local debugMode = false  -- Включение режима отладки
+local debugMode = true  -- Включение режима отладки
 
 local rooms = {
     room1 = {
@@ -26,20 +26,22 @@ local rooms = {
         spawn = {x = 240, y = 136},
         backgroundOffset = {x = 25, y = 17},
         collisions = {
-            {x = 95, y = 100, w = 280, h = 16},
-			{x = 95, y = 110, w = 16, h = 100},
-			{x = 370, y = 100, w = 16, h = 140},
-			{x = 100, y = 200, w = 32, h = 32},
-			{x = 116, y = 224, w = 32, h = 32},
-			{x = 132, y = 240, w = 32, h = 48},
-			{x = 132, y = 260, w = 80, h = 32},
+            {x = 100, y = 117, w = 280, h = 16},
         },
         npcs = {
             {
                 x = 300, y = 150, 
                 dialogues = {"* Hello, I'm an NPC in Room 1!", "* Nice to meet you!", "* Goodbye!"},
                 currentDialogueIndex = 1,
-                sprite = Image.load("Assets/Sprites/Overworld/test.png")
+                sprite = Image.load("Assets/Sprites/Overworld/test.png"),
+                voiceSoundID = 0 -- ID канала звука для этого NPC (например, звук на канале 1)
+            },
+            {
+                x = 350, y = 160, 
+                dialogues = {"* Another NPC here!", "* How's it going?", "* See you later!"},
+                currentDialogueIndex = 1,
+                sprite = Image.load("Assets/Sprites/Overworld/test.png"),
+                voiceSoundID = 0 -- ID канала звука для этого NPC (например, звук на канале 2)
             },
         },
         size = {w = 480, h = 272}
@@ -119,7 +121,7 @@ end
 local dialogueDisplaying = false
 local currentDialogue = ""
 local printedChars = 0
-local typingSpeed = 0.02 -- Интервал времени между печатью символов в секундах
+local typingSpeed = 0.035 -- Интервал времени между печатью символов в секундах
 local timeElapsed = 0
 local currentNPC = nil -- Переменная для хранения текущего NPC в диалоге
 
@@ -158,22 +160,22 @@ while true do
     screen:clear()
     
     -- Read controls
-    local pad = Controls.read()
-    local crossPressed = pad:cross()
-    local circlePressed = pad:circle()
-    
-    local moving = false
-    local dx, dy = 0, 0  -- Delta for X and Y movement
-
-    if dialogueDisplaying then
-        -- Если диалог отображается и нажата кнопка "круг", показываем весь текст
-        if circlePressed and not circlePressedLastFrame then
-            printedChars = #currentDialogue
-        end
-        
-        -- If the dialogue is displayed and cross is pressed, continue the dialogue
-        if crossPressed and not crossPressedLastFrame and printedChars >= #currentDialogue then
-            if currentNPC.currentDialogueIndex < #currentNPC.dialogues then
+     local pad = Controls.read()
+     local crossPressed = pad:cross()
+     local circlePressed = pad:circle()
+     
+     local moving = false
+     local dx, dy = 0, 0  -- Delta for X and Y movement
+     
+     if dialogueDisplaying then
+         -- Если диалог отображается и нажата кнопка "круг", показываем весь текст
+         if circlePressed and not circlePressedLastFrame then
+             printedChars = #currentDialogue
+         end
+         
+         -- If the dialogue is displayed and cross is pressed, continue the dialogue
+         if crossPressed and not crossPressedLastFrame and printedChars >= #currentDialogue then
+             if currentNPC.currentDialogueIndex < #currentNPC.dialogues then
                  currentNPC.currentDialogueIndex = currentNPC.currentDialogueIndex + 1
                  currentDialogue = currentNPC.dialogues[currentNPC.currentDialogueIndex]
                  printedChars = 0
@@ -191,8 +193,8 @@ while true do
                  if printedChars < #currentDialogue then
                      local nextChar = currentDialogue:sub(printedChars + 1, printedChars + 1)
                      if nextChar ~= " " then
-                         Wav.stop(0)
-                         Wav.play(false, 0)
+                         Wav.stop(currentNPC.voiceSoundID)
+                         Wav.play(false, currentNPC.voiceSoundID)
                      end
                      printedChars = math.min(printedChars + 1, #currentDialogue)
                      timer:reset()
@@ -238,11 +240,11 @@ while true do
         if not checkCollisions(player.x, newY) then
             player.y = newY
         end
-
+ 
          -- Check for interaction with NPCs
          if crossPressed and not crossPressedLastFrame then
              for _, npc in ipairs(currentRoom.npcs) do
-                 local distance = math.sqrt((npc.x - player.x)^2 + (npc.y - player.y)^2)
+                 local distance = math.sqrt((npc.x - player.x) ^ 2 + (npc.y - player.y) ^ 2)
                  if distance < 30 then -- Check distance to NPC (customize as needed)
                      dialogueDisplaying = true
                      currentNPC = npc
