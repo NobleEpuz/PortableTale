@@ -227,13 +227,17 @@ while true do
              moving = true
          end
          
-         -- Update player's position with collision check
-         local newX = player.x + dx
-         local newY = player.y + dy
-         if not checkCollisions(newX, newY) then
-             player.x = newX
-             player.y = newY
-         end
+        -- Update player's position with collision check
+        local newX = player.x + dx
+        local newY = player.y + dy
+        -- Check horizontal collisions
+        if not checkCollisions(newX, player.y + dy) then
+            player.x = newX
+        end
+        -- Check vertical collisions
+        if not checkCollisions(player.x, newY) then
+            player.y = newY
+        end
 
          -- Check for interaction with NPCs
          if crossPressed and not crossPressedLastFrame then
