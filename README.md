@@ -8,5 +8,5 @@ The game requires no build. Just download Source Code, and run EBOOT.PBP!
 ## Finished list
 - Intro - 95% (No camera lift at the end)
 - Splash - 50% (No name input)
-- Overworld - 25%
+- Overworld - 50%
 - Battle Engine - 0%
